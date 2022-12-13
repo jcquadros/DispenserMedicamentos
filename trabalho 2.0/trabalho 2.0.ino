@@ -48,8 +48,6 @@ int horas, ano;
 
 LiquidCrystal lcd(pinRs, pinEn, pinD4, pinD5, pinD6, pinD7);
 
-int contador = 0;
-
 //********ALARMES***********
 int horaAlarme[3] ={0,0,0};
 int minutosAlarme[3] ={0,0,0};
@@ -62,6 +60,7 @@ byte remedio[] = { 0x0E,0x19,0x11,0x11,0x1F,0x1F,0x1D,0x0E};
 
 void setup() {
   rtc.begin();
+  // rtc.setTime(12,0,0);
   pinMode(pinBackLight, OUTPUT);
   digitalWrite(pinBackLight, HIGH);   //liga a luz de fundo
   lcd.begin(16, 2);                   // inicializa lcd
@@ -72,7 +71,23 @@ void setup() {
   Serial.begin(115200);
   saudacao();
 }
+ 
+void loop() {
+  telaHome();
+  int botao = leBotoes();
+  if(botao == btUP){ // Abre o menu de configuracoes ao pressionar o botao up
+    configuracoesDeAlarmeMenu();
+    lcd.clear();
+  }
+  if(ehIgualHorarioAoAlarme() != -1){
+    // toca o alarme
+  }  
 
+
+}
+/*
+* Tela de boas vindas
+*/
 void saudacao(){                                                         
   lcd.setCursor(0,0);                                               
   lcd.print("Aguarde ... ");
@@ -86,19 +101,11 @@ void saudacao(){
   lcd.print((char)REMEDIO);                              
   delay(3000);                                                    
   lcd.clear();
-}  
+} 
 
-void loop() {
-  
-  telaHome();
-  int botao = leBotoes();
-  if(botao == btUP){ // Abre o menu de configuracoes ao pressionar o botao up
-    configuracoesDeAlarmeMenu();
-    lcd.clear();
-  }
-
-
-}
+/*
+* Tela principal : notifica alarmes ativos e exibe a hora atual
+*/
 void telaHome(){
   int i, count = 0;
   lcd.clear();
@@ -120,7 +127,9 @@ void telaHome(){
   // lcd.setCursor(0,1);
   // lcd.print(rtc.getTimeStr());
 }
-
+/*
+* Realiza a leitura dos botoes conectados a A0 , trata o bounce e retorna o botao selecionado
+*/
 int leBotoes(){
   int valBotoes = analogRead(pinBotoes);
   int botaoAtual = btNENHUM;
@@ -152,7 +161,9 @@ int leBotoes(){
   
   return botaoAtual;
 }
-
+/*
+* O menu de configuracoes exibe todos os alarmes 
+*/
 void configuracoesDeAlarmeMenu(){
   int botao = btNENHUM;
   int opcao = 0;
@@ -166,64 +177,70 @@ void configuracoesDeAlarmeMenu(){
   while(true){
     botao = leBotoes();
     
-      // navega pelo menu
-      if(botao == btRIGHT){
-        opcao++;
-      }else if(botao == btLEFT){
-        opcao--;
-      }else if(botao == btSELECT){
-        if(opcao !=SAIR){
-          configuracaoAlarme(opcao);
-        }
-        break;
+    // navega pelo menu
+    if(botao == btRIGHT){
+      opcao++;
+    }else if(botao == btLEFT){
+      opcao--;
+    }else if(botao == btSELECT){
+      if(opcao !=SAIR){
+        configuracaoAlarme(opcao);
       }
-      // trata extrapolacoes
-      if(opcao > SAIR){
-        opcao = ALARME1;
-      }
-      if(opcao < ALARME1){
-        opcao = SAIR;
-      }
-      imprimeOpcaoSelecionada(opcao);
+      break;
+    }
+    // trata extrapolacoes
+    if(opcao > SAIR){
+      opcao = ALARME1;
+    }
+    if(opcao < ALARME1){
+      opcao = SAIR;
+    }
+    imprimeOpcaoSelecionada(opcao);
     
   }
 
 }
 
+/*
+* Imprime na tela as informacoes de um alarme - Hora, Minutos, Ativado/Desativado
+*/
 void imprimeOpcaoSelecionada(int opcao){
   
-    if(opcao!=SAIR){
-      lcd.clear();
-      lcd.print("Alarme ");
-      lcd.print(opcao+1); // imprime o numero do alarme
-      lcd.setCursor(12,1);
-      if(onAlarme[opcao]){ // imprime on ou off
-        lcd.print("ON ");
-        lcd.setCursor(15, 0);
-        lcd.print((char)SINO); // sininho de alarme ativado
-      }else{
-        lcd.print("OFF");
-      }
-      // // imprime o horario do alarme
-      lcd.setCursor(0,1);
-      if(horaAlarme[opcao] <10){ // trata escrita de uma hora com menos de 2 digitos
-        lcd.print("0");
-      }
-      lcd.print(horaAlarme[opcao]);
-      lcd.print(" :");
-      if(minutosAlarme[opcao] <10){ // trata a escrita de um minuto com menos de 2 digitos
-        lcd.print("0");
-      }
-      lcd.print(minutosAlarme[opcao]);
-      
-   
+  if(opcao!=SAIR){
+    lcd.clear();
+    lcd.print("Alarme ");
+    lcd.print(opcao+1); // imprime o numero do alarme
+    lcd.setCursor(12,1);
+    if(onAlarme[opcao]){ // imprime on ou off
+      lcd.print("ON ");
+      lcd.setCursor(15, 0);
+      lcd.print((char)SINO); // sininho de alarme ativado
     }else{
-      lcd.clear();
-      lcd.print("Sair");
+      lcd.print("OFF");
     }
+    // // imprime o horario do alarme
+    lcd.setCursor(0,1);
+    if(horaAlarme[opcao] <10){ // trata escrita de uma hora com menos de 2 digitos
+      lcd.print("0");
+    }
+    lcd.print(horaAlarme[opcao]);
+    lcd.print(" :");
+    if(minutosAlarme[opcao] <10){ // trata a escrita de um minuto com menos de 2 digitos
+      lcd.print("0");
+    }
+    lcd.print(minutosAlarme[opcao]);
+
+
+  }else{
+    lcd.clear();
+    lcd.print("Sair");
+  }
   
 }
 
+/*
+* Configura horario e ativa/desativa um alarme por meio de um menu no lcd
+*/
 void configuracaoAlarme(int alarme){
   int botao = btNENHUM;
   int opcao = modoHORA;
@@ -306,10 +323,17 @@ void alteraPosicaoCursor(int modo){
 
 /*
 * Verifica se é o horario de algum alarme tocar e se ele está ligado
+* Retorna o indice do alarme a ser tocado ou -1 se nao ha alarme a ser tocado
 */
-int ehIgualHorarioAoAlarme(int n){
+int ehIgualHorarioAoAlarme(){
   t = rtc.getTime();
-  return (t.hour == horaAlarme[n] && t.min == minutosAlarme[n] && onAlarme[n] == true);
+  int i = 0;
+  for(i = 0; i < 3; i++){
+    if(t.hour == horaAlarme[n] && t.min == minutosAlarme[n] && onAlarme[n] == true){
+      return n;
+    }
+  }
+  return -1;
 }
 
 
