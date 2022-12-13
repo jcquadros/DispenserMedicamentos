@@ -329,8 +329,8 @@ int ehIgualHorarioAoAlarme(){
   t = rtc.getTime();
   int i = 0;
   for(i = 0; i < 3; i++){
-    if(t.hour == horaAlarme[n] && t.min == minutosAlarme[n] && onAlarme[n] == true){
-      return n;
+    if(t.hour == horaAlarme[i] && t.min == minutosAlarme[i] && onAlarme[i] == true){
+      return i;
     }
   }
   return -1;
