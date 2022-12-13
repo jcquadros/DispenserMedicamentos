@@ -117,29 +117,35 @@ void telaHome(){
 
 int leBotoes(){
   int valBotoes = analogRead(pinBotoes);
-  delay(100);
-  if(estadoBotaoAnt != valBotoes){
-    estadoBotaoAnt = valBotoes;    
-    if ((valBotoes < 800) && (valBotoes >= 600)) {
-      return btSELECT;
-      
-    } else if ((valBotoes < 600) && (valBotoes >= 400)) {
-      return btLEFT;
-      
-    } else if ((valBotoes < 400) && (valBotoes >= 200)) {
-      return btDOWN;
-      
-    } else if ((valBotoes < 200) && (valBotoes >= 60)) {
-      return btUP;   
-    } else if  (valBotoes < 60) {
-      return btRIGHT;
-    }else {
-      return btNENHUM;
-    }
-  }  
-  else {
-    return btNENHUM;
+  int botaoAtual = btNENHUM;
+  delay(150);
+  Serial.println(valBotoes);
+     
+  if ((valBotoes < 800) && (valBotoes >= 600) && !apertou) {
+    botaoAtual = btSELECT;
+    apertou = true;
+    
+  } else if ((valBotoes < 600) && (valBotoes >= 400)&& !apertou) {
+    apertou = true;
+    botaoAtual = btLEFT;
+    
+  } else if ((valBotoes < 400) && (valBotoes >= 200) && !apertou) {
+    botaoAtual = btDOWN;
+    apertou = true;
+    
+  } else if ((valBotoes < 200) && (valBotoes >= 60) && !apertou) {
+    botaoAtual = btUP;
+    apertou = true;   
+  } else if  (valBotoes < 60 && !apertou) {
+    botaoAtual = btRIGHT;
+    apertou = true;
+  }else if(valBotoes >=800){
+    apertou = false;
+    botaoAtual = btNENHUM;
   }
+
+  
+  return botaoAtual;
 }
 
 void configuracoesDeAlarmeMenu(){
