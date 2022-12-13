@@ -39,8 +39,6 @@
 #define CURSOR 3
 #define REMEDIO 4
 
-unsigned long delayBotao = 0;
-int estadoBotaoAnt = btNENHUM;
 boolean apertou = false;
 
 // --- Declaração de Objetos ---
@@ -80,12 +78,12 @@ void saudacao(){
   lcd.print("Aguarde ... ");
   lcd.setCursor(0,1);                                                
   lcd.print("Preparando RTC ");
-  lcd.print((char)1); 
+  lcd.print((char)SINO); 
   delay(3000);                                                    
   lcd.clear();                                                      
   lcd.setCursor(0,0);                                              
   lcd.print("Bem vindo, Sr! ");  
-  lcd.print((char)4);                              
+  lcd.print((char)REMEDIO);                              
   delay(3000);                                                    
   lcd.clear();
 }  
@@ -249,28 +247,27 @@ void configuracaoAlarme(int alarme){
     }
     // configura hora minuto ou ligar/desligar alarme
     if(botao == btUP || botao == btDOWN){
-      if(opcao == modoHORA){
+      if(opcao == modoHORA){ // incrementa a hora
         horaAlarme[alarme] += incrementaHorario;
-      }else if(opcao == modoMINUTO){
+      }else if(opcao == modoMINUTO){ // incrementa os minutos
         minutosAlarme[alarme] +=incrementaHorario;
       }else if(opcao == modoONOFF){
-        onAlarme[alarme] = !onAlarme[alarme]; // ativa ou desatica o alarme
+        onAlarme[alarme] = !onAlarme[alarme]; // ativa ou desativa o alarme
       }
     }
     
-    // trata extrapolacoes
+    // trata extrapolacoes de opcoes
     if(opcao > modoMINUTO){
       opcao = modoONOFF;
     }else if(opcao < modoONOFF){
       opcao = modoMINUTO;
     }
 
-    trataHorario(alarme); //  nao permite que extrapole
+    trataHorario(alarme); //  nao permite que horarios extrapolem
     imprimeOpcaoSelecionada(alarme);
     alteraPosicaoCursor(opcao);
     lcd.print(char(CURSOR));
 
-    // imprime a opcao
   }
 }
 
@@ -305,6 +302,14 @@ void alteraPosicaoCursor(int modo){
   }else if(modo == modoMINUTO){
     lcd.setCursor(6,1);
   } 
+}
+
+/*
+* Verifica se é o horario de algum alarme tocar e se ele está ligado
+*/
+int ehIgualHorarioAoAlarme(int n){
+  t = rtc.getTime();
+  return (t.hour == horaAlarme[n] && t.min == minutosAlarme[n] && onAlarme[n] == true);
 }
 
 
