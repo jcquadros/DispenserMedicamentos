@@ -11,6 +11,8 @@ by: Dipto Pratyaksa
 last updated: 31/3/13
 */
 
+#define pinBotao 3
+
 /*************************************************
 * Public Constants
 *************************************************/
@@ -209,6 +211,7 @@ void my_setup(void)
 {
 pinMode(11, OUTPUT);//buzzer
 pinMode(13, OUTPUT);//led indicator when singing a note
+pinMode(pinBotao, INPUT);
 
 }
 void my_loop()
@@ -242,6 +245,10 @@ delay(pauseBetweenNotes);
 
 // stop the tone playing:
 buzz(melodyPin, 0, noteDuration);
+
+  if (digitalRead(pinBotao)==LOW){
+    break;
+  }
 
 }
 
