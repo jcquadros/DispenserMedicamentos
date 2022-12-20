@@ -2,6 +2,7 @@
 // --- Bibliotecas Auxiliares ---
 #include <DS3231.h>          //Inclui a biblioteca do DS3231 Shield
 #include <LiquidCrystal.h>
+#include <Stepper.h>
 
 //******* CONFIGURACAO DO PROJETO *********
 #define pinBotoes A0
@@ -41,6 +42,11 @@
 
 
 boolean apertou = false;
+int pressed = false;
+// --- Declaracao do motor ---
+
+int passosPorVolta = 100;
+Stepper motor(passosPorVolta,8,10,9,11);
 
 // --- Declaração de Objetos ---
 DS3231  rtc(SDA, SCL);
@@ -69,7 +75,8 @@ void setup() {
   lcd.createChar(HEART, heart);           // cria caracter de coracao
   lcd.createChar(CURSOR, cursor);           // cria caracter do cursor
   lcd.createChar(REMEDIO, remedio);
-  Serial.begin(115200);
+  //Serial.begin(115200);
+  motor.setSpeed(300);
   saudacao();
 }
  
@@ -81,15 +88,26 @@ void loop() {
     lcd.clear();
   }
   if(ehIgualHorarioAoAlarme() != -1){
-    // toca o alarme
-    
+    movimentaMotor();       
+    lcd.clear();
+    lcd.print("Hora do Remedio! ");
+    lcd.print((char)REMEDIO); 
+    for(int i = 0; i<5; i++){
+      if(sing(1) == true){
+        break;
+      }
+    }
   }
+  
   // funcoes que tocam o alarme
-  my_setup();
-  my_loop();
+  
   
 
 
+}
+
+void movimentaMotor(){
+ motor.step(-passosPorVolta*2.575);
 }
 /*
 * Tela de boas vindas
@@ -129,7 +147,7 @@ void telaHome(){
     lcd.print((char)SINO);  
   }
   // Descomentar após resolver o erro do lcd/rtc
-  Serial.println(rtc.getTimeStr());
+  //Serial.println(rtc.getTimeStr());
   lcd.setCursor(0,1);
   lcd.print(rtc.getTimeStr());
 }
@@ -335,9 +353,10 @@ int ehIgualHorarioAoAlarme(){
   t = rtc.getTime();
   int i = 0;
   for(i = 0; i < 3; i++){
-    if(t.hour == horaAlarme[i] && t.min == minutosAlarme[i] && onAlarme[i] == true){
+    if(t.hour == horaAlarme[i] && t.min == minutosAlarme[i] && onAlarme[i] == true && t.sec == 0){
       return i;
     }
+    
   }
   return -1;
 }
