@@ -46,7 +46,7 @@ int pressed = false;
 // --- Declaracao do motor ---
 
 int passosPorVolta = 100;
-Stepper motor(passosPorVolta,8,10,9,11);
+Stepper motor(passosPorVolta,3,1,2,0);
 
 // --- Declaração de Objetos ---
 DS3231  rtc(SDA, SCL);
@@ -56,9 +56,9 @@ int horas, ano;
 LiquidCrystal lcd(pinRs, pinEn, pinD4, pinD5, pinD6, pinD7);
 
 //********ALARMES***********
-int horaAlarme[3] ={0,0,0};
-int minutosAlarme[3] ={0,0,0};
-int onAlarme[3] = {false,false,false};
+int horaAlarme[3] ={14,0,0};
+int minutosAlarme[3] ={48,0,0};
+int onAlarme[3] = {true,false,false};
 
 byte heart[] = {0x00,0x0A,0x1F,0x1F,0x0E,0x04,0x00,0x00};
 byte cursor[] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x1F};
@@ -67,7 +67,7 @@ byte remedio[] = { 0x0E,0x19,0x11,0x11,0x1F,0x1F,0x1D,0x0E};
 
 void setup() {
   rtc.begin();
-  // rtc.setTime(12,0,0);
+  rtc.setTime(14,47,0);
   pinMode(pinBackLight, OUTPUT);
   digitalWrite(pinBackLight, HIGH);   //liga a luz de fundo
   lcd.begin(16, 2);                   // inicializa lcd
@@ -88,7 +88,7 @@ void loop() {
     lcd.clear();
   }
   if(ehIgualHorarioAoAlarme() != -1){
-    movimentaMotor();       
+    //movimentaMotor();        
     lcd.clear();
     lcd.print("Hora do Remedio! ");
     lcd.print((char)REMEDIO); 
@@ -107,7 +107,7 @@ void loop() {
 }
 
 void movimentaMotor(){
- motor.step(-passosPorVolta*2.575);
+  motor.step(-passosPorVolta*2.575);
 }
 /*
 * Tela de boas vindas
