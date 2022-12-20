@@ -216,38 +216,42 @@ pinMode(pinBotao, INPUT_PULLUP);
 
 }
 
-int song = 0;
 
-void sing(int s) {
-// iterate over the notes of the melody:
 
+/*
+* Recebe 1 para musica 1, e 2 para musica 2, e toca cada nota da melodia por um for;
+*/
+int sing(int s) {
+int pressed = false;
 prepara_alarme();
-song = s;
+int song = s;
 
 // TOCA MUSICA 2: "UNDERWORLD"
 if (song == 2) {
 
 int tam = sizeof(underworld_melody) / sizeof(int);
 for (int thisNote = 0; thisNote < tam; thisNote++) {
-  
-// to calculate the note duration, take one second
-// divided by the note type.
-//e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+
+
+//A duracao da nota é calculada dividindo um segundo pelo tipo da nota (quarta, oitava, etc);
+
 int noteDuration = 1000 / underworld_tempo[thisNote];
 
 buzz(melodyPin, underworld_melody[thisNote], noteDuration);
 
-// to distinguish the notes, set a minimum time between them.
-// the note's duration + 30% seems to work well:
+
+//O tempo de silêncio entre as notas é arbitrário;
+
 int pauseBetweenNotes = noteDuration * 1.30;
 
 delay(pauseBetweenNotes);
 
-// stop the tone playing:
+// Pausa:
 buzz(melodyPin, 0, noteDuration);
 
-
+// Quando a pessoa apertar o botão a música é interrompida;
 if (digitalRead(pinBotao)==HIGH){
+    pressed = true;
     break;
  }
 
@@ -258,27 +262,28 @@ if (digitalRead(pinBotao)==HIGH){
 int tam = sizeof(melody) / sizeof(int);
 for (int thisNote = 0; thisNote < tam; thisNote++) {
 
-// to calculate the note duration, take one second
-// divided by the note type.
-//e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+//A duracao da nota é calculada dividindo um segundo pelo tipo da nota (quarta, oitava, etc);
+
 int noteDuration = 1000 / tempo[thisNote];
 
 buzz(melodyPin, melody[thisNote], noteDuration);
 
-// to distinguish the notes, set a minimum time between them.
-// the note's duration + 30% seems to work well:
+//O tempo de silêncio entre as notas é arbitrário;
+
 int pauseBetweenNotes = noteDuration * 1.30;
 delay(pauseBetweenNotes);
 
-// stop the tone playing:
+// Pausa:
 buzz(melodyPin, 0, noteDuration);
-Serial.println(digitalRead(pinBotao));
+
+// Quando a pessoa apertar o botão a música é interrompida;
 if (digitalRead(pinBotao)==HIGH){
+    pressed = true;
     break;
   }
-
 }
 }
+return pressed;
 }
 
 void buzz(int targetPin, long frequency, long length) {
