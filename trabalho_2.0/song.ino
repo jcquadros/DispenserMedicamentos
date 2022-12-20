@@ -11,7 +11,7 @@ by: Dipto Pratyaksa
 last updated: 31/3/13
 */
 
-#define pinBotao 3
+#define pinBotao 12
 
 /*************************************************
 * Public Constants
@@ -209,7 +209,7 @@ int underworld_tempo[] = {
 
 void prepara_alarme(void)
 {
-Serial.begin(9600);
+// Serial.begin(9600);
 pinMode(11, OUTPUT);//buzzer
 pinMode(13, OUTPUT);//led indicator when singing a note
 pinMode(pinBotao, INPUT_PULLUP);
